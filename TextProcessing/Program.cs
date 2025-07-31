@@ -12,49 +12,68 @@ namespace TextProcessing
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter the full path of the text file: ");
-            string filePath = Console.ReadLine();
-
-            if (!File.Exists(filePath))
+           namespace CoffeeOrderApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Dictionary<string, Dictionary<string, double>> menu = new Dictionary<string, Dictionary<string, double>>()
             {
-                Console.WriteLine("The file does not exist. Exiting...");
-                return;
-            }
+                { "Espresso", new Dictionary<string, double> { { "Small", 2.00 }, { "Medium", 3.00 }, { "Large", 4.00 } } },
+                { "Latte", new Dictionary<string, double> { { "Small", 2.50 }, { "Medium", 3.50 }, { "Large", 4.50 } } },
+                { "Cappuccino", new Dictionary<string, double> { { "Small", 2.75 }, { "Medium", 3.75 }, { "Large", 4.75 } } },
+                { "Americano", new Dictionary<string, double> { { "Small", 2.25 }, { "Medium", 3.25 }, { "Large", 4.25 } } },
+            };
 
-            // Read all lines
-            string[] lines = File.ReadAllLines(filePath);
+            List<(string Coffee, string Size, double Price)> order = new List<(string, string, double)>();
+            string userInput = "";
 
-            // Dictionary to hold word counts
-            Dictionary<string, int> wordCounts = new Dictionary<string, int>();
-            foreach (string line in lines)
+            Console.WriteLine("Welcome to the Online Coffee Ordering System!\n");
+
+            do
             {
-                // Remove punctuation and convert to lowercase
-                string cleanedLine = Regex.Replace(line, @"[^\w\s]", "").ToLower();
-
-                // Split by whitespace into words
-                string[] words = cleanedLine.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (string word in words)
+ Console.WriteLine("Available Coffees:");
+                int index = 1;
+                foreach (var item in menu)
                 {
-                    if (wordCounts.ContainsKey(word))
-                    {
-                        wordCounts[word]++;
-                    }
-                    else
-                        wordCounts[word] = 1;
+                    Console.WriteLine($"{index}. {item.Key}");
+                    index++;
                 }
+
+                Console.Write("\nEnter the number of the coffee you want to order: ");
+                int coffeeChoice = Convert.ToInt32(Console.ReadLine());
+                string selectedCoffee = new List<string>(menu.Keys)[coffeeChoice - 1];
+
+                Console.WriteLine("Available Sizes: Small, Medium, Large");
+                Console.Write("Enter size: ");
+                string size = Console.ReadLine().Trim();
+
+                if (!menu[selectedCoffee].ContainsKey(size))
+                {
+                    Console.WriteLine("Invalid size selected. Try again.");
+                    continue;
+                }
+
+                double price = menu[selectedCoffee][size];
+                order.Add((selectedCoffee, size, price));
+                Console.WriteLine($"Added {size} {selectedCoffee} - ${price:F2} to your order.\n");
+
+ Console.Write("Do you want to add another item? (yes/no): ");
+                userInput = Console.ReadLine().Trim().ToLower();
+
+            } while (userInput == "yes");
+
+            Console.WriteLine("\n--- Order Summary ---");
+            double total = 0;
+            foreach (var item in order)
+            {
+                Console.WriteLine($"{item.Size} {item.Coffee} - ${item.Price:F2}");
+                total += item.Price;
             }
 
-            // Output word counts
-            Console.WriteLine("\n Word occurrences:");
-            foreach (var pair in wordCounts.OrderBy(p=>p.Key))
-            {
-                Console.WriteLine($"{pair.Key}: {pair.Value}");
-            }
-            // Output number of unique words
-            Console.WriteLine($"\nTotal number of unique words: {wordCounts.Count}");
-            Console.ReadKey();
-        }
-       
-    }
+            Console.WriteLine($"\nTotal Amount: ${total:F2}");
+            Console.WriteLine("Thank you for your order!");
+        }
+    }
 }
